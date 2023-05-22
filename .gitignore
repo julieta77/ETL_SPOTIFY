@@ -1,1 +1,9 @@
 env/
+prueba1copia.ipynb
+.cache
+prueba1.ipynb 
+config/
+dags/
+logs/
+plugins/
+.env
