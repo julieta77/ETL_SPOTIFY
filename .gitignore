@@ -2,8 +2,7 @@ env/
 prueba1copia.ipynb
 .cache
 config/
-dags/
 logs/
 plugins/
-.env
-prueba1.ipynb
+dags/password.py 
+dags/functions.py
