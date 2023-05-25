@@ -1,0 +1,4 @@
+spotipy
+pandas
+sqlalchemy
+pymysql
