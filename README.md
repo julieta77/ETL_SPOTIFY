@@ -16,8 +16,8 @@ Steps to follow:
 * Clone the GitHub repository to your local machine using the following command:
 
 ```bash
-!git clone https://github.com/julieta77/ETL_SPOTIFY
-!cd https://github.com/julieta77/ETL_SPOTIFY
+!git clone https://github.com/julieta77/ETL_SPOTIFY/tree/main
+!cd https://github.com/julieta77/ETL_SPOTIFY/tree/main
 ```
 * Run the following command to launch the Airflow Docker container:
 ```docker
