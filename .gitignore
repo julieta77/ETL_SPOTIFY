@@ -6,3 +6,5 @@ logs/
 plugins/
 dags/password.py 
 dags/functions.py
+.gitignore
+.env

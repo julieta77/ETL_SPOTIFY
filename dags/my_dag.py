@@ -1,19 +1,21 @@
+######################################################### Importing the necessary libraries ######################################################
 import spotipy 
 from spotipy.oauth2 import SpotifyClientCredentials
 from sqlalchemy import create_engine
 from password import client_id,client_secret,mysql, redirect_uri
 from airflow import DAG 
-from datetime import datetime , time
+from datetime import datetime 
 from airflow.operators.python import PythonOperator
 import pandas as pd 
-import pymysql
 
 
+######################################################### Spotify API authentication #############################################################
 client_credentials_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
 sp = spotipy.Spotify(client_credentials_manager = client_credentials_manager)
-start_date = datetime.now().replace(hour=16, minute=9, second=0)
+
 
 def extract(playlist_id,**context):
+    """ This function receives as a parameter the id of a Spotify playlist in order to extract data """
     playlist = sp.playlist(playlist_id)
     Data = []
     for track in playlist['tracks']['items']:
@@ -28,6 +30,7 @@ def extract(playlist_id,**context):
 
 
 def trasform(**context):
+    """ From the dataframe returned from the extract function we transform the data with the necessary requirements """
     data = context['ti'].xcom_pull(key='extract_data')
     data['gender'] = data['gender'].apply(lambda lista : lista[0] if lista != [] else None) 
     data['launch_album'] =  pd.to_datetime(data['launch_album'])
@@ -39,17 +42,17 @@ def trasform(**context):
 
 
 def load(**context):
+    """ We load the dataframes to the mysql database """
     df1 = context['ti'].xcom_pull(key='transformed_data1')
-    df2 = context['ti'].xcom_pull(key='transformed_data2')
-    # Reemplaza "hostname" por la dirección IP o el nombre del host de tu base de datos MySQL
-    #conexion = create_engine("mysql+pymysql://root:juli4409@127.0.0.1:3306/spotify") 
-    conexion = create_engine(f"mysql+pymysql://root:{'juli4409'}@host.docker.internal:3306/spotify") 
+    df2 = context['ti'].xcom_pull(key='transformed_data2') 
+    conexion = create_engine(f"mysql+pymysql://root:{mysql}@host.docker.internal:3306/spotify") 
     df1.to_sql(name='Songs',con=conexion,if_exists= 'append',index=False)
     df2.to_sql(name='OtherInfoSongs',con=conexion,if_exists= 'append',index=False)
 
-
-with DAG('My_dag', start_date=start_date,
-        schedule_interval='@once', catchup=False) as dag:
+############################################# We created the dag to automate the ETL #############################################################
+#start_date = datetime.now().replace(hour=10, minute=49, second=0) to take a test
+with DAG('ETL_SPOTIFY', start_date=datetime(2023,5,26), 
+        schedule_interval='@weekly', catchup=False) as dag:
 
 
         extrac = PythonOperator(task_id='extraer_data_spotify',
